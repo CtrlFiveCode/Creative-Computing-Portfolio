@@ -1,0 +1,324 @@
+// Variable Declaration
+let cloudX = 0; // X-coordinate of clouds
+let cloudY = 60; // Y-coordinate of clouds
+let font; // Variable to store loaded font
+let gameState = "start"; // Current state of the game
+let player; // Player object
+let score = 0; // Player's score
+let highScore = 0; // Variable to store the high score
+let obstacles = []; // Array to store obstacles (not currently used)
+let pipes = []; // Array to store pipes
+
+// - - - - - - - - - -
+
+// Setup Functions
+
+// Load Font First
+function preload() {
+  font = loadFont("pixelfont.ttf"); // Load the font
+}
+
+function setup() {
+  createCanvas(600, 400); // Create canvas
+  textAlign(CENTER, CENTER); // Set text alignment
+  textFont(font); // Set the font for text
+  player = new Player(); // Create a new player object
+}
+
+// - - - - - - - - - -
+
+// Draw Functions
+
+function draw() {
+  // Draw different elements based on the game state
+  if (gameState === "start") {
+    drawBackground(); // Draw background
+    drawPlayButton(); // Draw play button
+    drawText(); // Draw text
+  } else if (gameState === "playing") {
+    drawGame(); // Draw game elements
+    drawScore(); // Draw player's score
+    drawHighScore(); // Draw high score
+  } else if (gameState === "gameOver") {
+    drawGameOver(); // Draw game over screen
+    drawHighScore(); // Draw high score
+  }
+}
+
+function drawBackground() {
+  // Draw the background elements
+  background(135, 206, 250); // Sky blue background
+  fill(155, 228, 85); // Light green color
+  rect(0, height - 60, width, 15); // Ground
+  fill(216, 166, 80); // Darker brown color
+  rect(0, height - 50, width, 5); // Ground line
+  fill(221, 216, 150); // Light brown color
+  rect(0, height - 45, width, 45); // Ground texture
+  drawCloud(cloudX, cloudY); // Draw clouds
+  drawCloud(cloudX - 200, cloudY + 30); // Draw another set of clouds
+  cloudX = (cloudX + 1) % (width + 100); // Move clouds horizontally
+}
+
+function drawCloud(x, y) {
+  // Draw a cloud
+  noStroke(); // No outline
+  let cloudColor1 = color(255, 255, 255, 200); // Cloud color with transparency
+  let cloudColor2 = color(255, 255, 255, 0); // Transparent cloud color
+  for (let i = 0; i < 60; i += 20) {
+    // Loop to draw cloud segments
+    fill(lerpColor(cloudColor1, cloudColor2, i / 60)); // Interpolate color
+    rect(floor((x + i) / 20) * 20, floor(y / 20) * 20, 20, 20); // Draw cloud segment
+    rect(floor((x - i + 40) / 20) * 20, floor((y + 20) / 20) * 20, 20, 20); // Draw another cloud segment
+  }
+}
+
+function drawText() {
+  // Draw text on the screen
+  textSize(24); // Set text size
+  fill(255); // White color
+  text("BATHSPA", width / 2, height / 2 - 100); // Draw university name
+  text("UNIVERSITY", width / 2, height / 2 - 50); // Draw university name
+}
+
+function drawScore() {
+  // Draw player's score on the screen
+  textSize(18); // Set text size
+  fill(255); // White color
+  text("Score: " + score, width - 120, 30); // Display score
+}
+
+function drawHighScore() {
+  // Draw high score on the screen
+  textSize(18); // Set text size
+  fill(255); // White color
+  text("High Score: " + highScore, 135, 30); // Display high score
+}
+
+function drawPlayButton() {
+  // Draw the play button on the screen
+  let buttonWidth = 150; // Width of the button
+  let buttonHeight = 50; // Height of the button
+  let buttonX = width / 2 - buttonWidth / 2; // X-coordinate of the button
+  let buttonY = height / 2 + 50; // Y-coordinate of the button
+  fill(0, 128, 0); // Green color
+  rect(buttonX, buttonY, buttonWidth, buttonHeight, 10); // Draw button with rounded corners
+  fill(255); // White color
+  textSize(24); // Set text size
+  text("Play", width / 2, buttonY + buttonHeight / 2); // Display "Play" text on the button
+}
+
+function drawGameOver() {
+  // Draw the game over screen
+  background(20); // Black background
+  textAlign(CENTER, CENTER); // Center alignment for text
+  fill(255); // White color
+  textSize(32); // Set text size
+  text("Game Over", width / 2, height / 2 - 50); // Display "Game Over" text
+
+  // Update high score if needed
+  if (score > highScore) {
+    highScore = score; // Update high score
+  }
+
+  // Draw play button
+  let buttonWidth = 150; // Width of the button
+  let buttonHeight = 50; // Height of the button
+  let buttonX = width / 2 - buttonWidth / 2; // X-coordinate of the button
+  let buttonY = height / 2 + 50; // Y-coordinate of the button
+  fill(0, 128, 0); // Green color
+  rect(buttonX - 50, buttonY, buttonWidth + 100, buttonHeight, 10); // Draw button with rounded corners
+  fill(255); // White color
+  textSize(24); // Set text size
+  text("Main Menu", width / 2, buttonY + buttonHeight / 2); // Display "Main Menu" text on the button
+}
+
+// - - - - - - - - - -
+
+// Game Control Functions
+
+function mousePressed() {
+  // Handle mouse click events
+  if (gameState === "start") {
+    // Check if the game is in "start" state
+    let buttonWidth = 150; // Width of the button
+    let buttonHeight = 50; // Height of the button
+    let buttonX = width / 2 - buttonWidth / 2; // X-coordinate of the button
+    let buttonY = height / 2 + 50; // Y-coordinate of the button
+    if (
+      mouseX > buttonX &&
+      mouseX < buttonX + buttonWidth &&
+      mouseY > buttonY &&
+      mouseY < buttonY + buttonHeight
+    ) {
+      // Check if mouse click is within the play button area
+      gameState = "playing"; // Transition to "playing" state
+    }
+  } else if (gameState === "gameOver") {
+    // Check if the game is in "gameOver" state
+    let buttonWidth = 150; // Width of the button
+    let buttonHeight = 50; // Height ofthe button
+    let buttonX = width / 2 - buttonWidth / 2; // X-coordinate of the button
+    let buttonY = height / 2 + 50; // Y-coordinate of the button
+    if (
+      mouseX > buttonX &&
+      mouseX < buttonX + buttonWidth &&
+      mouseY > buttonY &&
+      mouseY < buttonY + buttonHeight
+    ) {
+      // Check if mouse click is within the button area
+      gameState = "start"; // Reset game state to "start"
+      player.reset(); // Reset player position
+      resetScore(); // Reset player score
+    }
+  }
+}
+
+function drawGame() {
+  // Draw the game elements
+  drawBackground(); // Draw background
+  player.update(); // Update player position
+  player.show(); // Draw player
+
+  // Draw pipes
+  for (let i = pipes.length - 1; i >= 0; i--) {
+    pipes[i].show(); // Show pipe
+    pipes[i].update(); // Update pipe position
+
+    // Check for collision with player
+    if (pipes[i].hits(player)) {
+      gameState = "gameOver"; // Change game state to "gameOver"
+      pipes = []; // Clear the pipes array
+
+      // Update high score if needed
+      if (score > highScore) {
+        highScore = score; // Update high score
+      }
+
+      break; // Exit the loop since the game is over
+    }
+
+    // Remove off-screen pipes
+    if (pipes[i].offscreen()) {
+      pipes.splice(i, 1); // Remove pipe from array
+    }
+  }
+
+  // Generate new pipes at regular intervals
+  if (frameCount % 100 === 0) {
+    pipes.push(new Pipe()); // Add a new pipe to the array
+    score++; // Increment player's score
+  }
+}
+
+function keyPressed() {
+  // Handle key press events
+  if (keyCode === 32 && gameState === "playing") {
+    // Check if spacebar is pressed and game is in "playing" state
+    player.jump(); // Make the player jump
+  }
+}
+
+// - - - - - - - - - -
+
+// Player and Pipe Classes
+
+class Player {
+  constructor() {
+    this.x = 50; // Initial x-coordinate of the player
+    this.y = height - 50; // Initial y-coordinate of the player
+    this.size = 30; // Size of the player
+    this.gravity = 0.6; // Gravity applied to the player
+    this.jumpSpeed = -8; // Speed of player's jump
+    this.velocity = 0; // Initial vertical velocity of the player
+  }
+
+  update() {
+    // Update player's position
+    this.velocity += this.gravity; // Apply gravity
+    this.y += this.velocity; // Update vertical position
+
+    // Prevent player from falling through the ground
+    if (this.y >= height - 50) {
+      this.y = height - 50;
+      this.velocity = 0;
+    }
+  }
+
+  show() {
+    // Draw the player
+    fill(255, 0, 0); // Red color
+    ellipse(this.x, this.y, this.size, this.size); // Draw player as a circle
+  }
+
+  reset() {
+    // Reset player's position
+    this.y = height - 50; // Set y-coordinate to ground level
+    this.velocity = 0; // Reset vertical velocity
+  }
+
+  jump() {
+    this.velocity = this.jumpSpeed; // Set vertical velocity to jump speed
+  }
+}
+
+class Pipe {
+  constructor() {
+    this.spacing = 125; // Spacing between upper and lower pipes
+    this.top = random(height / 6, (3 / 4) * height); // Position of lower pipe
+    this.bottom = this.top + this.spacing; // Position of upper pipe
+    this.x = width; // Initial x-coordinate of the pipe
+    this.w = 60; // Width of the pipe
+    this.speed = 2; // Initial speed of the pipe moving towards the player
+    this.speedIncrement = 0.01; // Rate of increase in speed
+    this.highlight = false; // Flag to indicate collision with player
+  }
+
+  offscreen() {
+    // Check if the pipe is off the screen
+    return this.x < -this.w;
+  }
+
+  hits(player) {
+    // Check for collision with the player
+    if (
+      player.y - player.size / 2 < this.top ||
+      player.y + player.size / 2 > this.bottom
+    ) {
+      if (
+        player.x + player.size / 2 > this.x &&
+        player.x - player.size / 2 < this.x + this.w
+      ) {
+        this.highlight = true; // Highlight the pipe in case of collision
+        return true; // Collision detected
+      }
+    }
+    this.highlight = false; // Reset highlighting if no collision
+    return false; // No collision detected
+  }
+
+  update() {
+    // Update position and speed of the pipe
+    this.x -= this.speed; // Move the pipe towards the player
+    this.speed += this.speedIncrement; // Increase speed gradually
+  }
+
+  show() {
+    // Draw the pipe
+    fill(0, 200, 0); // Green color
+    if (this.highlight) {
+      // Highlight the pipe in case of collision
+      fill(255, 0, 0); // Red color
+    }
+    rect(this.x, 0, this.w, this.top); // Draw upper pipe
+    rect(this.x, this.bottom, this.w, height - this.bottom); // Draw lower pipe
+  }
+}
+
+// - - - - - - - - - -
+
+// Utility Functions
+
+function resetScore() {
+  // Reset player's score
+  score = 0; // Set score to zero
+}
