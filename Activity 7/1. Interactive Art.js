@@ -3,7 +3,7 @@
 let cloudX = 0;
 // Initial Cloud Y-Coordinate
 let cloudY = 60;
-// Font variable
+// Font Variable
 let font;
 // Array to Store Trees
 let trees = [];
